@@ -1,0 +1,5 @@
+./image-to-coco-converter/output/
+./image-to-coco-converter/dataset/
+./configs/data/
+.jpg
+.png

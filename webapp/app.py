@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 # Initialize your mmdetection model
-config_file = 'C:/Users/peter/mmdetection/configs/food/FoodConfig7.py'
+config_file = 'C:/Users/peter/mmdetection/configs/AI4Food/configs/FoodConfig7.py'
 checkpoint_file = 'C:/Users/peter/mmdetection/work_dirs/FoodConfig7/epoch_12.pth'
 model = init_detector(config_file, checkpoint_file)
 
