@@ -53,25 +53,47 @@ def inference_image(image_path):
 
     pred_dict = pred_to_dict(pred)
 
-    pred_masks = numpy.array([])
+    # pred_masks = numpy.array([])
+    pred_masks = []
     for i in pred_dict['masks']:
-        temp = numpy.array([])
+        # temp = numpy.array([])
+        temp = []
         for j in i:
-            temp1 = numpy.array([])
+            # temp1 = numpy.array([])
+            temp1 = []
             for x in j:
                 # if int(x) != 0:
-                    # print("yay")
-                numpy.append(temp1, int(x))
-            numpy.append(temp, temp1)
-        numpy.append(pred_masks, temp)
+                    # print(int(x))
+                xint = int(x)
+                temp1.append(xint)
+                # numpy.append(temp1, xint)
+                # print(temp1)
+
+            # numpy.append(temp, temp1)
+            if len(temp1) != 0:
+                temp1 = numpy.array(temp1, dtype=numpy.uint8)
+                temp.append(temp1)
+        # numpy.append(pred_masks, temp)
+        if len(temp) != 0:
+            temp = numpy.array(temp)
+            pred_masks.append(temp)
+
+    pred_masks = numpy.array(pred_masks)
+    print(type(pred_masks[0][0][0]))
 
 
     # print(type(int(pred_dict['masks'][0][0])))
     # print(pred_masks)
     print("Popo")
 
-    contours = cv2.findContours(pred_masks[0], cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
+    print(len(pred_dict['scores']))
+    print(len(pred_dict['labels']))
+    for i in range(len(pred_masks)):
+        contours, _ = cv2.findContours(pred_masks[i], cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        print(cv2.contourArea(contours[0]))
+        print(pred_dict['scores'][i])
+        print(pred_dict['labels'][i])
     # print("VALUE: ", b)
     # model1.show_result(image_path, pred)
     # print("Result Dict Keys: ", list(result.keys()))
