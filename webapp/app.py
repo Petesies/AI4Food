@@ -51,41 +51,50 @@ def inference_image(image_path):
     # Perform inference
     result = inferencer(image_path, out_dir='static/out/', show=False)
 
-    image_mask_np_uint8 = numpy.uint8(pred.pred_instances['masks'].cpu())  # Ensure uint8 format
-    image_mask_np_uint8 = numpy.squeeze(image_mask_np_uint8)
+    pred_dict = pred_to_dict(pred)
 
-    # Find contours in the mask
-    contours, _ = cv2.findContours(image_mask_np_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    pred_masks = numpy.array([])
+    for i in pred_dict['masks']:
+        temp = numpy.array([])
+        for j in i:
+            temp1 = numpy.array([])
+            for x in j:
+                # if int(x) != 0:
+                    # print("yay")
+                numpy.append(temp1, int(x))
+            numpy.append(temp, temp1)
+        numpy.append(pred_masks, temp)
 
-    # Assuming you want to work with the largest contour, you can sort contours by area
-    contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-    # contours = cv2.findContours(pred.pred_instances)
-    print(cv2.contourArea(contours))
-    # print(cv2.contourArea(pred.pred_instances['masks'].cpu().numpy()))
+    # print(type(int(pred_dict['masks'][0][0])))
+    # print(pred_masks)
+    print("Popo")
 
-    # import struct
-    # b = result['predictions'][0]['masks'][1]['counts'].encode('utf-8')
-
-    # value = struct.unpack('B', b)[0]
+    contours = cv2.findContours(pred_masks[0], cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     # print("VALUE: ", b)
-
-    print("Result Dict Keys: ", list(result.keys()))
-    print("Predictions Dict Keys: ", list(result['predictions'][0].keys()))
-    print("Labels: ", result['predictions'][0]['labels'])
-    print("Scores: ", result['predictions'][0]['scores'])
-    print("bboxes: ", result['predictions'][0]['bboxes'])
-    print("masks: ", result['predictions'][0]['masks'][1])
-    print("masks keys: ", list(result['predictions'][0]['masks'][1].keys()))
-    print("Counts type: ", type(result['predictions'][0]['masks'][0]['counts']))
-    # print("Visualization list single list: ", [v for v in result['visualization'][0][5]])
-    print(len(result['predictions'][0]['masks']))
+    # model1.show_result(image_path, pred)
+    # print("Result Dict Keys: ", list(result.keys()))
+    # print("Predictions Dict Keys: ", list(result['predictions'][0].keys()))
+    # print("Labels: ", result['predictions'][0]['labels'])
+    # print("Scores: ", result['predictions'][0]['scores'])
+    # print("bboxes: ", result['predictions'][0]['bboxes'])
+    # print("masks: ", result['predictions'][0]['masks'][1])
+    # print("masks keys: ", list(result['predictions'][0]['masks'][1].keys()))
+    # print("Counts type: ", type(result['predictions'][0]['masks'][0]['counts']))
+    # # print("Visualization list single list: ", [v for v in result['visualization'][0][5]])
+    # print(len(result['predictions'][0]['masks']))
     # print([v for v in mask.decode(result['predictions'][0]['masks'][5])])
     # print("area: ", cv2.contourArea(mask.decode(result['predictions'][0]['masks'][5])))
 
 
     return result
+
+def pred_to_dict(pred):
+    pred_masks = pred.pred_instances.masks.clone().detach()
+    pred_scores = pred.pred_instances.scores.clone().detach()
+    pred_labels = pred.pred_instances.labels.clone().detach()
+    return {"masks": pred_masks.cpu().numpy(), "scores": pred_scores.cpu(), "labels": pred_labels.cpu()}
 
 if __name__ == '__main__':
     app.run(debug=True)
