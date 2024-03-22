@@ -5,6 +5,8 @@ import time
 import cv2
 from pycocotools import mask
 import numpy
+from mmdet.registry import VISUALIZERS
+import mmcv
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -53,70 +55,46 @@ def inference_image(image_path):
 
     pred_dict = pred_to_dict(pred)
 
-    # pred_masks = numpy.array([])
     pred_masks = []
     for i in pred_dict['masks']:
-        # temp = numpy.array([])
         temp = []
         for j in i:
-            # temp1 = numpy.array([])
             temp1 = []
             for x in j:
-                # if int(x) != 0:
-                    # print(int(x))
                 xint = int(x)
                 temp1.append(xint)
-                # numpy.append(temp1, xint)
-                # print(temp1)
 
-            # numpy.append(temp, temp1)
             if len(temp1) != 0:
                 temp1 = numpy.array(temp1, dtype=numpy.uint8)
                 temp.append(temp1)
-        # numpy.append(pred_masks, temp)
+
         if len(temp) != 0:
             temp = numpy.array(temp)
             pred_masks.append(temp)
 
     pred_masks = numpy.array(pred_masks)
-    print(type(pred_masks[0][0][0]))
 
-
-    # print(type(int(pred_dict['masks'][0][0])))
-    # print(pred_masks)
-    print("Popo")
-
+    arealist = []
 
     print(len(pred_dict['scores']))
     print(len(pred_dict['labels']))
+    print(len(pred_masks))
     for i in range(len(pred_masks)):
         contours, _ = cv2.findContours(pred_masks[i], cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        print(cv2.contourArea(contours[0]))
-        print(pred_dict['scores'][i])
-        print(pred_dict['labels'][i])
-    # print("VALUE: ", b)
-    # model1.show_result(image_path, pred)
-    # print("Result Dict Keys: ", list(result.keys()))
-    # print("Predictions Dict Keys: ", list(result['predictions'][0].keys()))
-    # print("Labels: ", result['predictions'][0]['labels'])
-    # print("Scores: ", result['predictions'][0]['scores'])
-    # print("bboxes: ", result['predictions'][0]['bboxes'])
-    # print("masks: ", result['predictions'][0]['masks'][1])
-    # print("masks keys: ", list(result['predictions'][0]['masks'][1].keys()))
-    # print("Counts type: ", type(result['predictions'][0]['masks'][0]['counts']))
-    # # print("Visualization list single list: ", [v for v in result['visualization'][0][5]])
-    # print(len(result['predictions'][0]['masks']))
-    # print([v for v in mask.decode(result['predictions'][0]['masks'][5])])
-    # print("area: ", cv2.contourArea(mask.decode(result['predictions'][0]['masks'][5])))
+        temp = [cv2.contourArea(contours[0]), pred_dict['scores'][i], pred_dict['labels'][i] + 1]
+        arealist.append(temp)
+        print("Area: ", cv2.contourArea(contours[0]))
+        print("Score: ", pred_dict['scores'][i])
+        print("Label Number: ", pred_dict['labels'][i] + 1, "\n\n")
 
+    return arealist
 
-    return result
-
+# Code form sizing_module.py provided by Chris Moorhead, modfied for numpy output
 def pred_to_dict(pred):
     pred_masks = pred.pred_instances.masks.clone().detach()
     pred_scores = pred.pred_instances.scores.clone().detach()
     pred_labels = pred.pred_instances.labels.clone().detach()
-    return {"masks": pred_masks.cpu().numpy(), "scores": pred_scores.cpu(), "labels": pred_labels.cpu()}
+    return {"masks": pred_masks.cpu().numpy(), "scores": pred_scores.cpu().numpy(), "labels": pred_labels.cpu().numpy()}
 
 if __name__ == '__main__':
     app.run(debug=True)
