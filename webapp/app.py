@@ -17,7 +17,7 @@ checkpoint_file = 'C:/Users/peter/mmdetection/work_dirs/foodseg103coco/epoch_25.
 sticker_config = 'C:/Users/peter/mmdetection/configs/AI4Food/configs/stickerPre.py'
 sticker_checkpoint = 'C:/Users/peter/mmdetection/work_dirs/stickerPre/epoch_4.pth'
 # model = init_detector(config_file, checkpoint_file)
-DIAMETER = 1.8
+DIAMETER = 0.9
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg'}
@@ -69,7 +69,7 @@ def inference_image(image_path):
     for i in arealist:
         tempArea = i[0] * ratio
         i.append(tempArea)
-        # print(i)
+        print(i)
 
     return arealist
 
