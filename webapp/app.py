@@ -81,14 +81,22 @@ def inference_image(image_path):
     print("ratio use: ", time.time() - start)
     for i in arealist:
         tempArea = i[0] * ratio
+        tempCalories = tempArea / 100
+        tempCalories = tempCalories * cal_per_100g.get(categories[(i[2]-1)])
         i.append(tempArea)
+        i.append(tempCalories)
         print(i)
 
     print("calories start: ", time.time() - start)
-    areaCalList = area_to_cal(arealist)
+    # areaCalList = area_to_cal(arealist)
+    # for i in arealist:
+    #     calories = i * 0.01
+    #     calories = calories  * cal_per_100g.get(categories[(i[2]-1)])
+    #     arealist.append(calories)
+
 
     print("return: ", time.time() - start)
-    return areaCalList
+    return arealist
 
 # Code form sizing_module.py provided by Chris Moorhead, modfied for numpy output
 def pred_to_dict(pred, start):
