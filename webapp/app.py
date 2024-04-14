@@ -8,6 +8,7 @@ import numpy
 from mmdet.registry import VISUALIZERS
 from math import pi
 from PIL import Image
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
@@ -60,24 +61,29 @@ def inference(filename):
 def inference_image(image_path):
     start = time.time()
 
+    print("Image Resize Start: ", time.time() - start)
     #Resize image to preset size to speed up processing
     im = Image.open(image_path) #Code from: https://stackoverflow.com/questions/9174338/programmatically-change-image-resolution
     im_resized = im.resize(size)
     im_resized.save(image_path, "JPEG")
+    print("Image Resize End: ", time.time() - start)
 
     #model for food detection for data processing
-    print("inference_detector: ", start)
+    print("inference_detector: ", time.time() - start)
     model1 = init_detector(config_file, checkpoint_file)
     pred = inference_detector(model1, image_path)
+    print("inference_detector End: ", time.time() - start)
 
     #model for food detection for image output
-    print("DetInfer: ", time.time())
+    print("DetInfer: ", time.time() - start)
     inferencer = DetInferencer(model=config_file, weights=checkpoint_file, palette=None)
     result = inferencer(image_path, out_dir='static/out/', show=False)
+    print("DetInfer End: ", time.time() - start)
 
     #to get relevant data into list and dict for processing
     print("pred_ti_dict(): ", time.time() - start)
     pred_masks, pred_dict = pred_to_dict(pred, start)
+    print("pred_ti_dict() End: ", time.time() - start)
 
     #output list init
     arealist = []
@@ -89,9 +95,12 @@ def inference_image(image_path):
         temp = [cv2.contourArea(contours[0]), pred_dict['scores'][i], pred_dict['labels'][i] + 1, categories[pred_dict['labels'][i]]]
         arealist.append(temp)
 
+    print("areaList End: ", time.time() - start)
+
     #getting ratio of pixels to cm^2
     print("ratio: ", time.time() - start)
     ratio = pixel_to_area(image_path, start)
+    print("ratio End: ", time.time() - start)
 
     '''Using ratio to determine real life size of masks, then calculating the
     number of calories in each food item based off its density score: 0 is least dense, 2 is most '''
@@ -110,7 +119,8 @@ def inference_image(image_path):
 
         i.append(tempArea)
         i.append(tempCalories)
-        print(i)
+
+    print("ratio use End: ", time.time() - start)
 
 
     print("return: ", time.time() - start)
