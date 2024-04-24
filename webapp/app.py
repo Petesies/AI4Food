@@ -19,7 +19,7 @@ sticker_config = 'C:/Users/peter/mmdetection/configs/AI4Food/configs/stickerPre.
 sticker_checkpoint = 'C:/Users/peter/mmdetection/work_dirs/stickerPre/epoch_4.pth'
 
 #Calibration sticker diameter, image size, categories, & calories for each category
-DIAMETER = 0.9
+DIAMETER = 0
 size = 640, 640
 categories = ('candy', 'egg tart', 'french fries', 'chocolate', 'biscuit', 'popcorn', 'pudding', 'ice cream', 'cheese butter', 'cake', 'wine', 'milkshake', 'coffee', 'juice', 'milk', 'tea', 'almond', 'red beans', 'cashew', 'dried cranberries', 'soy', 'walnut', 'peanut', 'egg', 'apple', 'date', 'apricot', 'avocado', 'banana', 'stawberry', 'cherry', 'blueberry', 'raspberry', 'mango', 'olives', 'peach', 'lemon', 'pear', 'fig', 'pineapple', 'grape', 'kiwi', 'melon', 'orange', 'watermelon', 'steak', 'pork', 'chicken duck', 'sausage', 'fried meat', 'lamb', 'sauce', 'crab', 'fish', 'shellfish', 'shrimp', 'soup', 'bread', 'corn', 'hamburg', 'pizza', 'hanaki baozi', 'wonton dumplings', 'pasta', 'noodles', 'rice', 'pie', 'tofu', 'eggplant', 'potato', 'garlic', 'cauliflower', 'tomato', 'kelp', 'seaweed', 'spring onion', 'rape', 'ginger', 'okra', 'lettuce', 'pumpkin', 'cucumber', 'white radish', 'carrot', 'asparagus', 'bamboo shoots', 'broccoli', 'celery stick', 'cilantro mint', 'snow peas', 'cabbage', 'bean sprouts', 'onion', 'pepper', 'green beans', 'french beans', 'king oyster mushroom', 'shiitake', 'enoki mushroom', 'oyster mushroom', 'white button mushroom', 'salad', 'other ingredients')
 cal_per_100g = {'candy': (450, 1), 'egg tart': (225, 0), 'french fries': (312, 1), 'chocolate': (418, 1), 'biscuit': (347, 1), 'popcorn': (460, 0), 'pudding': (300, 1), 'ice cream': (200, 1), 'cheese butter': (349, 2), 'cake': (257, 1), 'wine': (83, 0), 'milkshake': (112, 1), 'coffee': (20, 0), 'juice': (54, 0), 'milk': (42, 0), 'tea': (10, 0), 'almond': (529, 1), 'red beans': (333, 1), 'cashew': (553, 1), 'dried cranberries': (308, 1), 'soy': (446, 1), 'walnut': (654, 1), 'peanut': (567, 1), 'egg': (155, 1), 'apple': (52, 0), 'date': (282, 1), 'apricot': (48, 0), 'avocado': (160, 1), 'banana': (89, 0), 'stawberry': (33, 0), 'cherry': (50, 0), 'blueberry': (57, 0), 'raspberry': (53, 0), 'mango': (60, 0), 'olives': (115, 0), 'peach': (39, 0), 'lemon': (29, 0), 'pear': (57, 0), 'fig': (74, 0), 'pineapple': (50, 0), 'grape': (67, 0), 'kiwi': (61, 0), 'melon': (34, 0), 'orange': (47, 0), 'watermelon': (30, 0), 'steak': (271, 2), 'pork': (242, 2), 'chicken duck': (239, 2), 'sausage': (301, 2), 'fried meat': (301, 2), 'lamb': (294, 2), 'sauce': (68, 0), 'crab': (97, 1), 'fish': (206, 1), 'shellfish': (99, 1), 'shrimp': (99, 1), 'soup': (32, 1), 'bread': (265, 0), 'corn': (86, 0), 'hamburg': (295, 2), 'pizza': (266, 2), 'hanaki baozi': (147, 1), 'wonton dumplings': (284, 1), 'pasta': (131, 1), 'noodles': (138, 1), 'rice': (130, 2), 'pie': (237, 1), 'tofu': (76, 0), 'eggplant': (25, 0), 'potato': (75, 1), 'garlic': (149, 0), 'cauliflower': (25, 0), 'tomato': (19, 0), 'kelp': (43, 0), 'seaweed': (306, 0), 'spring onion': (32, 0), 'rape': (28, 0), 'ginger': (80, 0), 'okra': (33, 0), 'lettuce': (15, 0), 'pumpkin': (26, 0), 'cucumber': (15, 0), 'white radish': (16, 0), 'carrot': (41, 0), 'asparagus': (20, 0), 'bamboo shoots': (27, 0), 'broccoli': (34, 0), 'celery stick': (14, 0), 'cilantro mint': (23, 0), 'snow peas': (42, 0), 'cabbage': (25, 0), 'bean sprouts': (30, 0), 'onion': (40, 0), 'pepper': (20, 0), 'green beans': (31, 0), 'french beans': (31, 0), 'king oyster mushroom': (35, 0), 'shiitake': (34, 0), 'enoki mushroom': (37, 0), 'oyster mushroom': (33, 0), 'white button mushroom': (22, 0), 'salad': (17, 0), 'other ingredients': (0, 0)}
@@ -39,6 +39,10 @@ def upload_file():
     if 'file' not in request.files:
         return redirect(request.url)
     file = request.files['file']
+
+    global DIAMETER
+    DIAMETER = float(request.form.get(key='diameter'))
+
     if file.filename == '':
         return redirect(request.url)
     if file and allowed_file(file.filename):
@@ -85,6 +89,7 @@ def inference_image(image_path):
     pred_masks, pred_dict = pred_to_dict(pred, start)
     print("pred_ti_dict() End: ", time.time() - start)
 
+    print(pred_masks)
     #output list init
     arealist = []
 
@@ -119,12 +124,26 @@ def inference_image(image_path):
 
         i.append(tempArea)
         i.append(tempCalories)
+        print(i)
 
     print("ratio use End: ", time.time() - start)
 
+    finalOutput = []
+    for i in arealist:
+        temp = []
+        if i[1] > 0.5:
+            foodItem = "Food Item: " + str(i[3])
+            temp.append(foodItem)
+            foodArea = "Food Area: " + str(i[4])
+            temp.append(foodArea)
+            foodCalories = "Food Calories: " + str(i[5])
+            temp.append(foodCalories)
+            finalOutput.append(temp)
 
+    if len(finalOutput) == 0:
+        finalOutput = "No Condifent Predictions, Sorry"
     print("return: ", time.time() - start)
-    return arealist
+    return finalOutput
 
 
 #turning predictions into dictionary, as well as cinverting output onto suitable format for area finding
@@ -163,6 +182,10 @@ def pixel_to_area(img_path, start):
     print("pixeltoarea start: ", time.time() - start)
     model2 = init_detector(sticker_config, sticker_checkpoint)
     pred_sticker = inference_detector(model2, img_path)
+
+    # inferencer = DetInferencer(model=sticker_config, weights=sticker_checkpoint, palette=None)
+    # result = inferencer(img_path, out_dir='static/out/', show=False)
+
     pred_mask_sticker, pred_dict_sticker = pred_to_dict(pred_sticker, start)
 
     #calc stickers real life area based on user input diamter

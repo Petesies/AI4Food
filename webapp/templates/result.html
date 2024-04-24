@@ -1,13 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        h1 {text-align: center;}
+        p {text-align: center;}
+        div {text-align: center;}
+        button {text-align: center}
+        form {text-align: center}
+        body {text-align: center}
+        img {text-align: center}
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Inference Result</title>
 </head>
 <body>
     <h1>Image Inference Result</h1>
-    <img src="{{ url_for('static', filename='out/vis/' + filename) }}" alt="Uploaded Image" height="800" width="800">
+    <img src="{{ url_for('static', filename='out/vis/' + filename) }}" alt="Uploaded Image" height="400" width="400">
     <h2>Detection Results:</h2>
     <ul>
         <li>{{ result }}</li>
